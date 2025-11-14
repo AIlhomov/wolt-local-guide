@@ -7,6 +7,7 @@ import { TasteProfile } from "@/components/TasteProfile";
 import { PredictiveSearch } from "@/components/PredictiveSearch";
 import { AIBadge } from "@/components/AIBadge";
 import { DeliveryTracker } from "@/components/DeliveryTracker";
+import { TasteProfileQuiz } from "@/components/TasteProfileQuiz";
 import heroImage from "@/assets/hero-food.jpg";
 import sushiImage from "@/assets/sushi.jpg";
 import pizzaImage from "@/assets/pizza.jpg";
@@ -14,12 +15,14 @@ import burgerImage from "@/assets/burger.jpg";
 import pokeImage from "@/assets/poke.jpg";
 import thaiImage from "@/assets/thai.jpg";
 import dessertImage from "@/assets/dessert.jpg";
+import { restaurants } from "@/lib/mockRestaurants";
 
 const Index = () => {
   const [showTracker, setShowTracker] = useState(false);
+  const [recommended, setRecommended] = useState(restaurants);
   const currentTime = new Date().getHours();
   const timeContext = currentTime < 12 ? "breakfast" : currentTime < 17 ? "lunch" : "dinner";
-  
+
   const recommendations = [
     {
       name: "Sakura Sushi House",
@@ -89,8 +92,8 @@ const Index = () => {
               <MapPin className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Helsinki</span>
             </Button>
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               onClick={() => setShowTracker(true)}
               className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity"
             >
@@ -107,18 +110,18 @@ const Index = () => {
           style={{ backgroundImage: `url(${heroImage})` }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-background/80 to-background" />
-        
+
         <div className="relative container mx-auto px-4 py-20">
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <AIBadge className="mb-4">
               AI Personal Food Concierge
             </AIBadge>
-            
+
             <h1 className="text-5xl sm:text-6xl font-bold text-foreground">
               We know what you'll
               <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"> love</span>
             </h1>
-            
+
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Powered by AI that learns your taste, predicts your cravings, and connects you with the perfect meal at the perfect time.
             </p>
@@ -184,6 +187,29 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Taste Profile Quiz */}
+      <section className="bg-muted/30 py-16">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-foreground mb-4">Discover Your Taste Profile</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Take our quiz to help the AI understand your preferences and get personalized recommendations
+            </p>
+          </div>
+
+          <TasteProfileQuiz onRecommend={setRecommended} />
+
+          <div className="mt-8">
+            <h3 className="text-2xl font-bold text-foreground mb-4">Personalized Recommendations</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {recommended.map(r => (
+                <RestaurantCard key={r.id} {...r} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
       <section className="border-t border-border bg-muted/30 py-16">
         <div className="container mx-auto px-4">
@@ -193,7 +219,7 @@ const Index = () => {
               Our AI analyzes your preferences, context, and patterns to make every order better than the last
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             <Card className="p-6 text-center border-0 shadow-[var(--shadow-medium)] bg-card">
               <div className="w-12 h-12 rounded-full bg-gradient-to-r from-primary to-primary-glow mx-auto mb-4 flex items-center justify-center">
@@ -204,7 +230,7 @@ const Index = () => {
                 AI learns your taste profile and predicts what you'll love before you search
               </p>
             </Card>
-            
+
             <Card className="p-6 text-center border-0 shadow-[var(--shadow-medium)] bg-card">
               <div className="w-12 h-12 rounded-full bg-gradient-to-r from-secondary to-accent mx-auto mb-4 flex items-center justify-center">
                 <Clock className="h-6 w-6 text-secondary-foreground" />
@@ -214,7 +240,7 @@ const Index = () => {
                 Considers time, weather, location, and your schedule for perfect timing
               </p>
             </Card>
-            
+
             <Card className="p-6 text-center border-0 shadow-[var(--shadow-medium)] bg-card">
               <div className="w-12 h-12 rounded-full bg-gradient-to-r from-success to-accent mx-auto mb-4 flex items-center justify-center">
                 <Users className="h-6 w-6 text-success-foreground" />

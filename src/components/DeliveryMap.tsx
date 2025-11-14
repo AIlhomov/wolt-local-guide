@@ -54,11 +54,12 @@ const AnimatedDriver = ({ route, speed, onProgress }: AnimatedDriverProps) => {
         const next = prev + 1;
         if (next < route.length) {
           setPosition(route[next]);
-          onProgress((next / (route.length - 1)) * 100);
-          
+          // Show whole number progress
+          onProgress(Math.round((next / (route.length - 1)) * 100));
+
           // Center map on driver
           map.setView(route[next], map.getZoom());
-          
+
           return next;
         }
         return prev;
@@ -80,24 +81,36 @@ export const DeliveryMap = ({ onProgressUpdate }: DeliveryMapProps) => {
   // Helsinki area coordinates
   const restaurant: [number, number] = [60.1699, 24.9384]; // Helsinki center
   const destination: [number, number] = [60.1867, 24.9698]; // Kallio
-  
-  // Generate a realistic route (simplified version - in production would use routing API)
-  const generateRoute = (start: [number, number], end: [number, number]): [number, number][] => {
-    const steps = 50;
+
+  // Manually selected waypoints to follow main roads in Helsinki
+  const waypoints: [number, number][] = [
+    restaurant,
+    [60.1715, 24.9425], // Mannerheimintie
+    [60.1750, 24.9450], // Near Central Railway Station
+    [60.1780, 24.9500], // Kaisaniemi Park
+    [60.1810, 24.9560], // Hakaniemi
+    [60.1840, 24.9630], // Sörnäinen
+    destination
+  ];
+
+  // Interpolate between waypoints for smooth animation
+  const interpolateRoute = (points: [number, number][], stepsPerSegment = 10): [number, number][] => {
     const route: [number, number][] = [];
-    
-    // Add some curves to make it look more realistic
-    for (let i = 0; i <= steps; i++) {
-      const t = i / steps;
-      const lat = start[0] + (end[0] - start[0]) * t + Math.sin(t * Math.PI * 3) * 0.005;
-      const lng = start[1] + (end[1] - start[1]) * t + Math.cos(t * Math.PI * 2) * 0.005;
-      route.push([lat, lng]);
+    for (let i = 0; i < points.length - 1; i++) {
+      const start = points[i];
+      const end = points[i + 1];
+      for (let j = 0; j < stepsPerSegment; j++) {
+        const t = j / stepsPerSegment;
+        const lat = start[0] + (end[0] - start[0]) * t;
+        const lng = start[1] + (end[1] - start[1]) * t;
+        route.push([lat, lng]);
+      }
     }
-    
+    route.push(points[points.length - 1]);
     return route;
   };
 
-  const route = generateRoute(restaurant, destination);
+  const route = interpolateRoute(waypoints, 10);
   const center: [number, number] = [60.1783, 24.9541]; // Center between start and end
 
   return (
@@ -112,23 +125,23 @@ export const DeliveryMap = ({ onProgressUpdate }: DeliveryMapProps) => {
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        
+
         {/* Route line */}
         <Polyline
           positions={route}
           pathOptions={{ color: "#00D9FF", weight: 4, opacity: 0.7, dashArray: "10, 10" }}
         />
-        
+
         {/* @ts-expect-error - React Leaflet type definition issue */}
         <Marker position={restaurant} icon={restaurantIcon} />
-        
+
         {/* @ts-expect-error - React Leaflet type definition issue */}
         <Marker position={destination} icon={destinationIcon} />
-        
+
         {/* Animated driver */}
-        <AnimatedDriver route={route} speed={100} onProgress={onProgressUpdate} />
+        <AnimatedDriver route={route} speed={1000} onProgress={onProgressUpdate} />
       </MapContainer>
-      
+
       {/* Map overlay with info */}
       <div className="absolute top-4 left-4 bg-background/95 backdrop-blur px-4 py-2 rounded-lg shadow-lg border border-border z-[1000]">
         <p className="text-sm font-semibold text-foreground">Live Tracking</p>
