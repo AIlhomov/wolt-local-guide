@@ -3,9 +3,12 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sparkles, Trophy, Flame, Clock, MapPin, Bike, ChefHat, Package, Zap, Star } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AIBadge } from "./AIBadge";
+import { DeliveryMap } from "./DeliveryMap";
+import { DeliveryGame } from "./DeliveryGame";
 
 interface DeliveryTrackerProps {
   open: boolean;
@@ -19,6 +22,7 @@ export const DeliveryTracker = ({ open, onClose }: DeliveryTrackerProps) => {
   const [streak, setStreak] = useState(5);
   const [points, setPoints] = useState(340);
   const [newAchievement, setNewAchievement] = useState<string | null>(null);
+  const [mapProgress, setMapProgress] = useState(0);
   
   const stages = [
     { icon: ChefHat, label: "Order Confirmed", time: "2 min ago", tip: "The kitchen is preparing your meal with fresh ingredients!" },
@@ -38,37 +42,37 @@ export const DeliveryTracker = ({ open, onClose }: DeliveryTrackerProps) => {
   useEffect(() => {
     if (!open) return;
     
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        const next = prev + 1;
-        if (next >= 100) {
-          clearInterval(interval);
-          setNewAchievement("Order Complete! +50 points");
-          setPoints(p => p + 50);
-          return 100;
-        }
-        
-        // Update stage based on progress
-        if (next > 80 && currentStage < 4) setCurrentStage(4);
-        else if (next > 60 && currentStage < 3) setCurrentStage(3);
-        else if (next > 40 && currentStage < 2) setCurrentStage(2);
-        else if (next > 20 && currentStage < 1) setCurrentStage(1);
-        
-        // Update AI prediction
-        const remaining = Math.ceil((100 - next) * 0.18);
-        setAiPrediction(`${remaining} min`);
-        
-        // Award milestone points
-        if (next === 25 || next === 50 || next === 75) {
-          setPoints(p => p + 10);
-        }
-        
-        return next;
-      });
-    }, 150);
+    // Sync progress with map progress
+    const currentProgress = Math.max(progress, mapProgress);
+    
+    if (currentProgress > progress) {
+      setProgress(currentProgress);
+    }
+    
+    // Update stage based on progress
+    if (currentProgress > 80 && currentStage < 4) setCurrentStage(4);
+    else if (currentProgress > 60 && currentStage < 3) setCurrentStage(3);
+    else if (currentProgress > 40 && currentStage < 2) setCurrentStage(2);
+    else if (currentProgress > 20 && currentStage < 1) setCurrentStage(1);
+    
+    // Update AI prediction
+    const remaining = Math.ceil((100 - currentProgress) * 0.18);
+    setAiPrediction(`${remaining} min`);
+    
+    // Award milestone points
+    if ((currentProgress === 25 || currentProgress === 50 || currentProgress === 75) && points < 400) {
+      setPoints(p => p + 10);
+    }
+    
+    if (currentProgress >= 100) {
+      setNewAchievement("Order Complete! +50 points");
+      setPoints(p => p + 50);
+    }
+  }, [open, currentStage, mapProgress, progress, points]);
 
-    return () => clearInterval(interval);
-  }, [open, currentStage]);
+  const handleGameScore = (gameScore: number) => {
+    setPoints(340 + gameScore);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -108,6 +112,26 @@ export const DeliveryTracker = ({ open, onClose }: DeliveryTrackerProps) => {
           </div>
           <Progress value={progress} className="h-3" />
         </div>
+
+        {/* Map and Game Tabs */}
+        <Tabs defaultValue="map" className="mb-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="map">🗺️ Live Map</TabsTrigger>
+            <TabsTrigger value="game">🎮 Mini Game</TabsTrigger>
+          </TabsList>
+          <TabsContent value="map" className="mt-4">
+            <DeliveryMap onProgressUpdate={setMapProgress} />
+            <p className="text-xs text-muted-foreground text-center mt-2">
+              Watch your delivery driver in real-time
+            </p>
+          </TabsContent>
+          <TabsContent value="game" className="mt-4">
+            <DeliveryGame onScoreUpdate={handleGameScore} />
+            <p className="text-xs text-muted-foreground text-center mt-2">
+              Earn extra points while you wait!
+            </p>
+          </TabsContent>
+        </Tabs>
 
         {/* Delivery Stages */}
         <div className="space-y-4 mb-6">
