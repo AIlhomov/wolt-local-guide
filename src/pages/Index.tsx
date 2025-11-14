@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Sparkles, MapPin, Clock, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -5,6 +6,7 @@ import { RestaurantCard } from "@/components/RestaurantCard";
 import { TasteProfile } from "@/components/TasteProfile";
 import { PredictiveSearch } from "@/components/PredictiveSearch";
 import { AIBadge } from "@/components/AIBadge";
+import { DeliveryTracker } from "@/components/DeliveryTracker";
 import heroImage from "@/assets/hero-food.jpg";
 import sushiImage from "@/assets/sushi.jpg";
 import pizzaImage from "@/assets/pizza.jpg";
@@ -14,6 +16,7 @@ import thaiImage from "@/assets/thai.jpg";
 import dessertImage from "@/assets/dessert.jpg";
 
 const Index = () => {
+  const [showTracker, setShowTracker] = useState(false);
   const currentTime = new Date().getHours();
   const timeContext = currentTime < 12 ? "breakfast" : currentTime < 17 ? "lunch" : "dinner";
   
@@ -86,8 +89,12 @@ const Index = () => {
               <MapPin className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Helsinki</span>
             </Button>
-            <Button size="sm" className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity">
-              Sign In
+            <Button 
+              size="sm" 
+              onClick={() => setShowTracker(true)}
+              className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity"
+            >
+              Demo Delivery
             </Button>
           </div>
         </div>
@@ -228,6 +235,9 @@ const Index = () => {
           <p className="text-xs">Built to demonstrate smart recommendations, predictive ordering, and personalized experiences</p>
         </div>
       </footer>
+
+      {/* Delivery Tracker */}
+      <DeliveryTracker open={showTracker} onClose={() => setShowTracker(false)} />
     </div>
   );
 };
