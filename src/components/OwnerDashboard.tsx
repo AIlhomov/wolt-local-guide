@@ -31,14 +31,14 @@ export const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
             setImageFile(file);
             // Create blob URL for preview
             setPreview(URL.createObjectURL(file));
-            
+
             // Also convert to base64 for storage
             const reader = new FileReader();
             reader.onload = () => {
                 setBase64Image(reader.result as string);
             };
             reader.readAsDataURL(file);
-            
+
             setScanResult(null);
         }
     };

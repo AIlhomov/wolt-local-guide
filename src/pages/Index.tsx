@@ -96,11 +96,16 @@ const Index = ({ onLogout }: IndexProps) => {
 
     const prepTime = 10 + Math.floor(Math.random() * 10); // 10-20 min
     const deliveryTime = Math.floor(deliveryDistance * 2.5); // ~2.5 min per km
-    setEstimatedTime(prepTime + deliveryTime);
+    const totalTime = prepTime + deliveryTime;
+    setEstimatedTime(totalTime);
 
     setOrderStatus('preparing');
     setCartOpen(false);
-    toast.success(`Order placed! Estimated time: ${prepTime + deliveryTime} minutes`, {
+
+    // Clear the cart after placing order
+    setCart([]);
+
+    toast.success(`Order placed! Your food will arrive in ${totalTime} minutes 🎉`, {
       duration: 4000,
     });
   };
