@@ -445,7 +445,6 @@ npm run build
 - 📸 **Image quality matters** - Use well-lit, clear photos for best results
 - ⏱️ **Rate limits apply** - Gemini API has usage limits (retry logic handles this)
 - 💾 **Data is local** - Using localStorage for demo purposes
-- 🔒 **Private repo** - Contains API keys, keep `.env` secure
 
 ---
 
