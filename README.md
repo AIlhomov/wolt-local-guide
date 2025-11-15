@@ -1,73 +1,165 @@
-# Welcome to your Lovable project
+# 🍔 Restaurant Food Management System - User Guide
 
-## Project info
+## 🎯 Overview
 
-**URL**: https://lovable.dev/projects/19a3099c-d879-4577-8921-741a19dce5b9
+This app allows restaurant owners to add food items with automatic calorie detection, and customers to browse and order from the menu.
 
-## How can I edit this code?
+## 🚀 Features
 
-There are several ways of editing your application.
+### For Restaurant Owners:
+- ✅ Add food items with images
+- 🔍 Automatic calorie scanning using AI (Gemini)
+- 📊 Get detailed nutritional breakdown (protein, carbs, fat)
+- 📝 View all published food items
+- 🗑️ Delete food items
+- 🔄 Switch between owner and customer view
 
-**Use Lovable**
+### For Customers:
+- 👀 View all restaurant menu items
+- 📊 See calorie information for each dish
+- 💪 View macronutrient breakdown
+- 📱 Beautiful card-based UI
+- 🛒 Order food (button ready for integration)
+- 🔄 Switch to restaurant owner view
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/19a3099c-d879-4577-8921-741a19dce5b9) and start prompting.
+## 📖 How to Use
 
-Changes made via Lovable will be committed automatically to this repo.
+### 1. **Login Screen**
+When you start the app, you'll see two options:
+- **I'm a Customer** - Browse and order food
+- **I'm a Restaurant Owner** - Manage your menu
 
-**Use your preferred IDE**
+Just click one to continue - no username/password needed!
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 2. **Restaurant Owner Dashboard**
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+#### Adding a Food Item:
+1. Enter the **food name** (e.g., "Margherita Pizza")
+2. **Upload an image** by clicking or drag & drop
+3. Click **"Scan for Calories"** - AI analyzes the image
+4. Review the automatic calorie and nutrition data
+5. Click **"Publish Food Item"** to add to menu
 
-Follow these steps:
+#### The AI Scanner Provides:
+- Total calories
+- Protein (grams)
+- Carbs (grams)
+- Fat (grams)
+- Breakdown of items in the dish
+- Confidence level (high/medium/low)
+- Additional notes
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+#### Managing Items:
+- View all your published foods on the right side
+- Click the trash icon to delete an item
+- All changes are saved automatically
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+#### Logout:
+- Click **"Switch Account"** in the header to go back to login
 
-# Step 3: Install the necessary dependencies.
-npm i
+### 3. **Customer View**
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+#### Browsing Menu:
+- All restaurant food items appear at the top
+- Each card shows:
+  - Food image
+  - Food name
+  - Total calories (big and bold!)
+  - Protein, carbs, fat
+  - Breakdown of what's in the dish
+  - AI notes about the estimate
+  - Confidence level
+
+#### Ordering:
+- Click **"Order Now"** button on any food card
+- (In production, this would connect to payment/cart system)
+
+#### Logout:
+- Click **"Switch Account"** in the header to go back to login
+
+## 🗄️ Data Storage
+
+Currently using **localStorage** for simplicity:
+- All food items are stored in your browser
+- Data persists across page refreshes
+- Easy to upgrade to real database (Firebase, Supabase, etc.)
+
+To clear all data, open browser console and run:
+```javascript
+localStorage.removeItem('wolt_food_items')
 ```
 
-**Edit a file directly in GitHub**
+## 🔧 Technical Details
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Database Schema (localStorage)
+```typescript
+{
+  id: string,              // Unique ID
+  name: string,            // Food name
+  image: string,           // Base64 image
+  calories: number,        // Total calories
+  protein: number,         // Protein in grams
+  carbs: number,           // Carbs in grams
+  fat: number,             // Fat in grams
+  breakdown: Array<{       // Detailed breakdown
+    item: string,
+    calories: number,
+    portion: string
+  }>,
+  confidence: string,      // "high", "medium", "low"
+  notes: string,           // AI notes
+  restaurantId: string,    // Restaurant identifier
+  createdAt: string        // ISO timestamp
+}
+```
 
-**Use GitHub Codespaces**
+### API Endpoint
+- **POST /api/analyze** - Scan food image for calories
+  - Input: `{ image: base64, mediaType: string }`
+  - Output: Nutrition data from Gemini AI
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🎨 UI Components Used
 
-## What technologies are used for this project?
+- **shadcn/ui** components (Button, Card, Input)
+- **Lucide React** icons
+- **Sonner** for toast notifications
+- **Tailwind CSS** for styling
 
-This project is built with:
+## 🚀 Future Enhancements
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Potential features to add:
+- [ ] Multiple restaurant support
+- [ ] User authentication (real login)
+- [ ] Shopping cart & checkout
+- [ ] Order history
+- [ ] Real-time database (Firebase/Supabase)
+- [ ] Price information
+- [ ] Restaurant profiles
+- [ ] Customer reviews
+- [ ] Dietary filters (vegan, gluten-free, etc.)
+- [ ] Allergen information
 
-## How can I deploy this project?
+## 🐛 Troubleshooting
 
-Simply open [Lovable](https://lovable.dev/projects/19a3099c-d879-4577-8921-741a19dce5b9) and click on Share -> Publish.
+### Food items not showing up?
+- Make sure you've published at least one item as restaurant owner
+- Check browser console for errors
+- Try refreshing the page
 
-## Can I connect a custom domain to my Lovable project?
+### Calorie scanning not working?
+- Check that the server is running (`npm start`)
+- Verify API key in `.env` file
+- Check terminal for error messages
+- Try with a different, clearer image
 
-Yes, you can!
+### Lost all data?
+- localStorage is browser-specific
+- Data is cleared when you clear browser cache
+- Consider backing up to a real database
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 📝 Notes
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+- The AI calorie estimates are approximate
+- Image quality affects accuracy
+- Gemini API has rate limits (15 requests/minute)
+- All changes are instant (no page reload needed)
